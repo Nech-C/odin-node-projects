@@ -26,5 +26,9 @@ BookInstanceSchema.virtual("due_back_formatted").get(function () {
   return dt.toFormat("MMM dd, yyyy");
 });
 
+BookInstanceSchema.virtual("due_back_yyyy_mm_dd").get(function () {
+  return DateTime.fromJSDate(this.due_back).toISODate(); // This is the "yyyy-mm-dd" format
+});
+
 // Export model
 module.exports = mongoose.model("BookInstance", BookInstanceSchema);

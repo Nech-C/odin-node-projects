@@ -2,6 +2,8 @@ const Genre = require("../models/genre");
 const Book = require("../models/book");
 const asyncHandler = require("express-async-handler");
 
+const { body, validationResult } = require("express-validator");
+
 // Display list of all Genre.
 exports.genre_list = asyncHandler(async (req, res, next) => {
   const allGenres = await Genre.find({}).exec();
@@ -38,7 +40,7 @@ exports.genre_create_get = (req, res, next) => {
 };
 
 
-// Handle Genre create on POST.
+
 // Handle Genre create on POST.
 exports.genre_create_post = [
   // Validate and sanitize the name field.
