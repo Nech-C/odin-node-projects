@@ -276,7 +276,7 @@ exports.book_update_post = [
       return;
     } else {
       // Data from form is valid. Update the record.
-      const updatedBook = await Book.findByIdAndUpdate(req.params.id, book, {});
+      const updatedBook = await Book.findByIdAndUpdate(req.params.id, book, {new: true});
       // Redirect to book detail page.
       res.redirect(updatedBook.url);
     }
