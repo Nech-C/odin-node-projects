@@ -7,7 +7,7 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const  bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt");
 
 const mongoDb = "mongodb+srv://xiaokunchen:iGFbAex9ZlGHCbs8@cluster0.uxrszx8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 mongoose.connect(mongoDb);
@@ -64,7 +64,7 @@ app.post("/sign-up", async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = new User({
       username: req.body.username,
-      password: req.body.password
+      password: hashedPassword
     });
     await user.save();
     res.redirect("/");
