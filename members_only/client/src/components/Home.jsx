@@ -1,26 +1,13 @@
-import "../styles/Home.css";
-import PropTypes from "prop-types";
-import { userEffect } from "react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
 
-
-function Home(props) {
-    return (
-        <div>
-            <h1>Exclusive Club</h1>
-            <button className="login">LOG IN</button>
-            <button className="register">REGISTER</button>
-        </div>
-    )
-}
-
-Home.propTypes = {
-
-}
-
-Home.defaultProps = {
-
+function Home() {
+  return (
+    <div className="text-center py-10">
+      <h1 className="text-3xl font-bold text-white">Exclusive Club</h1>
+      <button className="bg-fuchsia-900 text-white py-2 px-4 rounded m-2">LOG IN</button>
+      <button className="bg-fuchsia-900 text-white py-2 px-4 rounded m-2">REGISTER</button>
+    </div>
+  );
 }
 
 export default Home;
