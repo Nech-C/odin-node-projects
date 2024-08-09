@@ -1,0 +1,9 @@
+extends layout 
+
+block content 
+    h1 Create new user
+    form(action="/new", method="post")
+        label(for="uname") Username:
+        input(type="text", id="uname", name="username")
+        br
+        button(type="submit") Submit
