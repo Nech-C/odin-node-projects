@@ -1,0 +1,14 @@
+extends layout 
+block content 
+    if user 
+        hi WELCOME BACK #{user.username}
+        a(href="/log-out") Log Out
+    else 
+        form(action="/log-in" method="POST" onsubmit="console.log('Form submitted');")
+            label(for="username") Username 
+            input(id="username" name="username" placeholder="username" type="text")
+            label(for="password") Password
+            input(id="password" name="password" type="password")
+            button(type="submit") Log In
+
+    
