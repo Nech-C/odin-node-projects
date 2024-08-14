@@ -2,25 +2,14 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
-var logger = require('morgan');
 const compression = require('compression');
 const helmet = require('helmet');
 
 
-const authRoutes = require('./routes/auth');
+const apiRouter = require('./routes/api');
 
 var app = express();
 
-// Set up mongoose connection
-const mongoose = require('mongoose');
-mongoose.set("strictQuery", false);
-const mongoDB = process.env.MONGODB_URI;
-
-main().catch((err) => console.log(err));
-
-async function main() {
-    await mongoose.connect(mongoDB)
-}
 
 app.use(compression());
 
@@ -40,12 +29,15 @@ const limiter = RateLimit({
 
 app.use(limiter);
 
-app.use(logger('dev'));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/api', authRoutes);
+app.get('/', (req, res) => {
+    res.send('Hello World!');
+});
+app.use('/api', apiRouter);
 
 module.exports = app;
