@@ -153,3 +153,45 @@ describe('User Registration API', () => {
     }
   }, 30000);
 });
+
+
+describe('User Login API', () => {
+  it('should login a user with correct credentials', async () => {
+    // First, register a user
+    await request(apiUrl)
+      .post('/api/register')
+      .send({
+        first_name: 'John',
+        last_name: 'Doe',
+        email: 'john.doe@example.com',
+        password: 'securepassword123'
+      });
+
+    // Then, try to login
+    const res = await request(apiUrl)
+      .post('/api/login')
+      .send({
+        email: 'john.doe@example.com',
+        password: 'securepassword123'
+      });
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('message', 'Login successful');
+    expect(res.body).toHaveProperty('user');
+    expect(res.body.user).toHaveProperty('email', 'john.doe@example.com');
+    expect(res.body.user).toHaveProperty('first_name', 'John');
+    expect(res.body.user).toHaveProperty('last_name', 'Doe');
+  });
+
+  it('should not login a user with incorrect credentials', async () => {
+    const res = await request(apiUrl)
+      .post('/api/login')
+      .send({
+        email: 'john.doe@example.com',
+        password: 'wrongpassword'
+      });
+
+    expect(res.statusCode).toEqual(401);
+    expect(res.body).toHaveProperty('message', 'Incorrect password');
+  });
+});

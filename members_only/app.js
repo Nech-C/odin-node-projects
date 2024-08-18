@@ -45,7 +45,8 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: 'none' // This is needed for cross-origin cookies
   }
 }));
 
@@ -106,12 +107,34 @@ app.get('/', (req, res) => {
 
 app.use('/api', apiRouter);
 
-app.post("/api/login",
-  passport.authenticate("local", {
-    failureRedirect: "/login",
-    successRedirect: "/",
-  })
-);
+app.post("/api/login", (req, res, next) => {
+  passport.authenticate("local", (err, u, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!u) {
+      return res.status(401).json({ 
+        message: info.message
+      });
+    }
+    req.logIn(u, (err) => {
+      if (err) {
+        return next(err);
+      }
+      return res.json({
+        message: "Login successful",
+        user: {
+          id: u.id,
+          email: u.email,
+          first_name: u.first_name,
+          last_name: u.last_name
+        }
+      });
+    });
+  })(req, res, next);
+});
+  
+
 
 // Error handling middleware should be last
 app.use((req, res, next) => {
