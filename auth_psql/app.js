@@ -6,6 +6,7 @@ const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
+const cors = require("cors");
 
 const pool = new Pool({
     host: "localhost",
@@ -17,6 +18,11 @@ const pool = new Pool({
 
 
 const app = express();
+
+app.use(cors({
+    origin: "http://localhost: 5174",
+    credentials: true
+}))
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
@@ -88,13 +94,22 @@ app.post("/sign-up", async (req, res) => {
     }
 });
 
-app.post(
-  "/log-in",
-  passport.authenticate("local", {
-    successRedirect: "/",
-    failureRedirect: "/",
-  })
-);
+app.post("/api/login", (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return res.status(400).json({ message: info.message });
+    }
+    req.logIn(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      return res.json({ message: "Login successful", user: { id: user.id, email: user.email } });
+    });
+  })(req, res, next);
+});
 
 app.get("/log-out", (req, res, next) => {
   req.logout((err) => {
