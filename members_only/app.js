@@ -29,7 +29,7 @@ app.use(cors({
 
 const limiter = RateLimit({
     windowMs: 1 * 60 * 1000,
-    max: 20,
+    max: 500,
 });
 app.use(limiter);
 
@@ -100,6 +100,12 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
+app.use((req, res, next) => {
+  console.log('Session:', req.session);
+  console.log('User:', req.user);
+  next();
+});
+
 // Routes
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -108,27 +114,25 @@ app.get('/', (req, res) => {
 app.use('/api', apiRouter);
 
 app.post("/api/login", (req, res, next) => {
-  passport.authenticate("local", (err, u, info) => {
-    console.log(u);
+  passport.authenticate("local", (err, user, info) => {
     if (err) {
       return next(err);
     }
-    if (!u) {
-      return res.status(401).json({ 
-        message: info.message
-      });
+    if (!user) {
+      return res.status(401).json({ message: info.message });
     }
-    req.logIn(u, (err) => {
+    req.logIn(user, (err) => {
       if (err) {
         return next(err);
       }
       return res.json({
         message: "Login successful",
         user: {
-          id: u.id,
-          email: u.email,
-          first_name: u.first_name,
-          last_name: u.last_name
+          id: user.id,
+          email: user.email,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          membership_status: user.membership_status
         }
       });
     });

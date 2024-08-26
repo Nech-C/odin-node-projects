@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { AuthContext } from '../contexts/AuthContext';
 
 function Login() {
     const [formData, setFormData] = useState({
@@ -9,6 +9,7 @@ function Login() {
     });
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const { login } = useContext(AuthContext);
 
     const handleChange = (e) => {
         setFormData({
@@ -21,14 +22,16 @@ function Login() {
         e.preventDefault();
         setError('');
         try {
-            const response = await axios.post('/api/login', formData, {
-                withCredentials: true
-            });
-            console.log('Login successful:', response.data);
-            navigate('/'); // Redirect to home page after successful login
+            const success = await login(formData.email, formData.password);
+            if (success) {
+                console.log('Login successful');
+                navigate('/messageboard'); // Redirect to message board after successful login
+            } else {
+                setError('Login failed. Please check your credentials.');
+            }
         } catch (error) {
-            console.error('Login error:', error.response?.data?.message || error.message);
-            setError(error.response?.data?.message || 'Login failed. Please try again.');
+            console.error('Login error:', error);
+            setError('An error occurred during login. Please try again.');
         }
     };
 
