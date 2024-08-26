@@ -13,6 +13,7 @@ const RateLimit = require("express-rate-limit");
 
 const apiRouter = require('./routes/api');
 const pool = require('./db/pool');
+const e = require('express');
 
 const app = express();
 
@@ -69,7 +70,6 @@ passport.use(new LocalStrategy({
     try {
       const { rows } = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
       const user = rows[0];
-
       if (!user) {
         return done(null, false, { message: "Incorrect email" });
       }
@@ -109,6 +109,7 @@ app.use('/api', apiRouter);
 
 app.post("/api/login", (req, res, next) => {
   passport.authenticate("local", (err, u, info) => {
+    console.log(u);
     if (err) {
       return next(err);
     }
