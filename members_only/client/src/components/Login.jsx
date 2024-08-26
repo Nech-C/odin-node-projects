@@ -21,7 +21,7 @@ function Login() {
         e.preventDefault();
         setError('');
         try {
-            const response = await axios.post('http://localhost:3000/api/login', formData, {
+            const response = await axios.post('/api/login', formData, {
                 withCredentials: true
             });
             console.log('Login successful:', response.data);
