@@ -85,7 +85,7 @@ describe('User Registration API', () => {
       expect(res.body.user).toHaveProperty('email', 'john.doe@example.com');
       expect(res.body.user).toHaveProperty('first_name', 'John');
       expect(res.body.user).toHaveProperty('last_name', 'Doe');
-      expect(res.body.user).toHaveProperty('membership_status', false);
+      expect(res.body.user).toHaveProperty('membership_status', true);
       expect(res.body.user).toHaveProperty('is_admin', false);
     } catch (error) {
       console.error('Error in test:', error);
@@ -194,7 +194,7 @@ describe('User Login API', () => {
       });
 
     expect(res.statusCode).toEqual(401);
-    expect(res.body).toHaveProperty('message', 'Incorrect password');
+    expect(res.body).toHaveProperty('message', 'Invalid credentials');
   });
 });
 

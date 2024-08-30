@@ -24,5 +24,6 @@ router.get('/messages', verifyToken, messageController.getAllMessages);
 
 router.post('/messages', verifyToken,messageController.postMessage);
 
+router.post('/login', userController.login);
 
 module.exports = router;

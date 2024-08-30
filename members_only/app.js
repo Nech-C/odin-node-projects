@@ -57,49 +57,6 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api', apiRouter);
-
-app.post('/api/login', async (req, res) => {
-  const { email, password } = req.body;
-  
-  try {
-    const user = await getUserByEmail(email); // Implement this function to fetch user from DB
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password_hash);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    const token = jwt.sign(
-      { id: user.id, email: user.email, membership_status: user.membership_status },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
-
-    res.json({
-      message: 'Login successful',
-      user: {
-        id: user.id,
-        email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        membership_status: user.membership_status
-      }
-    });
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
   
 
 
