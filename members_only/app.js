@@ -6,14 +6,12 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const express = require('express');
 const helmet = require('helmet');
-const LocalStrategy = require('passport-local').Strategy;
-const passport = require('passport');
-const session = require("express-session");
 const RateLimit = require("express-rate-limit");
+const jwt = require('jsonwebtoken');
+const e = require('express');
 
 const apiRouter = require('./routes/api');
 const pool = require('./db/pool');
-const e = require('express');
 
 const app = express();
 
@@ -38,22 +36,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// Session middleware
-app.use(session({
-  secret: process.env.SESSION_SECRET || "cats", // Use environment variable in production
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === "production",
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: 'none' // This is needed for cross-origin cookies
-  }
-}));
 
-// Passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
 
 // Compression should come after parsing but before routes
 app.use(compression());
@@ -61,44 +44,6 @@ app.use(compression());
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Passport configuration
-passport.use(new LocalStrategy({
-    usernameField: 'email',
-    passwordField: 'password'
-  },
-  async (email, password, done) => {
-    try {
-      const { rows } = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
-      const user = rows[0];
-      if (!user) {
-        return done(null, false, { message: "Incorrect email" });
-      }
-      const match = await bcrypt.compare(password, user.password_hash);
-
-      if (!match) {
-        return done(null, false, { message: "Incorrect password" });
-      }
-
-      return done(null, user);
-    } catch(err) {
-      return done(err);
-    }
-  }
-));
-
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-
-passport.deserializeUser(async (id, done) => {
-  try {
-    const { rows } = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
-    const user = rows[0];
-    done(null, user);
-  } catch(err) {
-    done(err);
-  }
-});
 
 app.use((req, res, next) => {
   console.log('Session:', req.session);
@@ -113,30 +58,47 @@ app.get('/', (req, res) => {
 
 app.use('/api', apiRouter);
 
-app.post("/api/login", (req, res, next) => {
-  passport.authenticate("local", (err, user, info) => {
-    if (err) {
-      return next(err);
-    }
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+  
+  try {
+    const user = await getUserByEmail(email); // Implement this function to fetch user from DB
     if (!user) {
-      return res.status(401).json({ message: info.message });
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
-    req.logIn(user, (err) => {
-      if (err) {
-        return next(err);
-      }
-      return res.json({
-        message: "Login successful",
-        user: {
-          id: user.id,
-          email: user.email,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          membership_status: user.membership_status
-        }
-      });
+
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, membership_status: user.membership_status },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
-  })(req, res, next);
+
+    res.json({
+      message: 'Login successful',
+      user: {
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        membership_status: user.membership_status
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
   
 

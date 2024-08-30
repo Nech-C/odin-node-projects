@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post('/api/login', { email, password }, { withCredentials: true });
+      const response = await axios.post('/api/login', { email, password });
       setUser(response.data.user);
       return true;
     } catch (error) {
