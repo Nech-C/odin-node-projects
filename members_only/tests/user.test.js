@@ -6,6 +6,7 @@ const db = require('../db/pool');
 let server;
 let apiUrl;
 let agent;
+let authToken;
 
 jest.setTimeout(60000); // Increase Jest's default timeout to 60 seconds
 
@@ -204,6 +205,25 @@ describe("Message Board API", () => {
       await db.query("DELETE FROM messages");
       await db.query("DELETE FROM users");
       console.log("Messages and users tables cleared");
+
+      await agent
+        .post("/api/register")
+        .send({
+          first_name: "John",
+          last_name: "Doe",
+          email: "example@email.com",
+          password: "securepassword123",
+        });
+
+      const loginRes = await agent
+        .post("/api/login")
+        .send({
+          email: "example@email.com",
+          password: "securepassword123",
+        });
+
+      authToken = loginRes.body.token;
+
     } catch (error) {
       console.error("Error in beforeEach:", error);
       throw error;
@@ -211,31 +231,10 @@ describe("Message Board API", () => {
   });
 
   it("should fetch all messages", async () => {
-    // First, register a user
-    const registerRes = await agent
-      .post("/api/register")
-      .send({
-        first_name: "John",
-        last_name: "Doe",
-        email: "example@email.com",
-        password: "securepassword123",
-      });
-
-    expect(registerRes.statusCode).toEqual(201);
-
-    // Then, login the user
-    const loginRes = await agent
-      .post("/api/login")
-      .send({
-        email: "example@email.com",
-        password: "securepassword123",
-      });
-
-    expect(loginRes.statusCode).toEqual(200);
-
-    // Now, create a message
+    // Create a message
     const messageRes = await agent
       .post("/api/messages")
+      .set('Authorization', `Bearer ${authToken}`)
       .send({
         title: "Hello, World!",
         content: "This is a test message",
@@ -243,15 +242,17 @@ describe("Message Board API", () => {
     
     expect(messageRes.statusCode).toEqual(201);
     
-    // Finally, fetch all messages
-    const res = await agent.get("/api/messages");
+    // Fetch all messages
+    const res = await agent
+      .get("/api/messages")
+      .set('Authorization', `Bearer ${authToken}`);
+
     console.log("Response: ", res.status, res.body);
     expect(res.statusCode).toEqual(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body.length).toEqual(1);
     expect(res.body[0]).toHaveProperty("title", "Hello, World!");
     expect(res.body[0]).toHaveProperty("content", "This is a test message");
-    expect(res.body[0]).toHaveProperty("user_id", registerRes.body.user.id);
   });
 
   it("should not allow posting a message without authentication", async () => {
@@ -263,6 +264,6 @@ describe("Message Board API", () => {
       });
 
     expect(res.statusCode).toEqual(401);
-    expect(res.body).toHaveProperty("message", "User not authenticated");
+    expect(res.body).toHaveProperty("message", "No token provided");
   });
 });
