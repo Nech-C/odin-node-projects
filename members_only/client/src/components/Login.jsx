@@ -1,6 +1,8 @@
-import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../contexts/AuthContext';
+import React, { useState, useContext, useEffect } from 'react';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+
+
 
 function Login() {
     const [formData, setFormData] = useState({
@@ -9,7 +11,11 @@ function Login() {
     });
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { login } = useContext(AuthContext);
+    const { user, login } = useAuth();
+
+    if (user) {
+        return <Navigate to="/messageboard" />;
+    }
 
     const handleChange = (e) => {
         setFormData({

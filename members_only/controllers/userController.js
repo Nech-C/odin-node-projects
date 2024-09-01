@@ -101,7 +101,6 @@ exports.login = asyncHandler(async (req, res) => {
 
         res.status(200).json({
             message: "Login successful",
-            token: token,
             user: {
                 id: user.rows[0].id,
                 email: user.rows[0].email,
@@ -115,9 +114,4 @@ exports.login = asyncHandler(async (req, res) => {
         console.error("Login error:", error);
         res.status(500).json({ message: "Internal server error" });
     }
-});
-
-app.post("/api/logout", (req, res) => {
-    res.clearCookie("token");
-    res.status(200).json({ message: "Logout successful" });
 });

@@ -1,7 +1,14 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { Link, Navigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 function Home() {
+  const { user, logout } = useAuth();
+
+  if (user) {
+    return <Navigate to="/messageboard" />;
+  }
+
   return (
     <div className="text-center py-10">
       <h1 className="text-3xl font-bold text-white">Exclusive Club</h1>

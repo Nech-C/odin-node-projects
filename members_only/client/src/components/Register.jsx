@@ -1,8 +1,10 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from '../contexts/AuthContext';
 
 function Register() {
+    const { user } = useAuth();
     const [formData, setFormData] = useState({
         first_name: "",
         last_name: "",
@@ -12,6 +14,10 @@ function Register() {
 
     const [error, setError] = useState('');
     const navigate = useNavigate();
+
+    if (user) {
+        return <Navigate to="/messageboard" />;
+    }
 
     const handleChange = (e)  => {
         setFormData({

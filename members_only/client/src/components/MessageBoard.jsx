@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { AuthContext } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
+import { Navigate } from 'react-router-dom';
 import axios from 'axios';
-axios.defaults.withCredentials = true;
 
 function MessageBoard() {
-  const { user } = useContext(AuthContext);
+  const { user, loading } = useAuth();
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
@@ -15,15 +15,19 @@ function MessageBoard() {
 
   const fetchMessages = async () => {
     try {
-      const response = await axios.get('/api/messages', { withCredentials: true });
+      const response = await axios.get('/api/messages');
       setMessages(response.data);
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   if (!user) {
-    return <div>Please log in to view messages.</div>;
+    return <Navigate to="/login" />;
   }
 
   if (!user.membership_status) {
