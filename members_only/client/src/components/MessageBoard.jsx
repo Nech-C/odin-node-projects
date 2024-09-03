@@ -6,6 +6,7 @@ import axios from 'axios';
 function MessageBoard() {
   const { user, loading } = useAuth();
   const [messages, setMessages] = useState([]);
+  const [myMessage, setMyMessage] = useState({title: '', content: ''});
 
   useEffect(() => {
     if (user && user.membership_status) {
@@ -22,6 +23,28 @@ function MessageBoard() {
     }
   };
 
+  const postMessage = async (e) => {
+    e.preventDefault();
+    const title = e.target[0].value;
+    const content = e.target[1].value;
+
+    try {
+      await axios.post('/api/messages', { title, content });
+      fetchMessages();
+      setMyMessage({title: '', content: ''});
+    } catch (error) {
+      console.error('Error posting message:', error);
+    }
+  };
+
+  const handleChange = (e) => {
+    setMyMessage({
+      ...myMessage,
+      [e.target.name]: e.target.value
+    });
+  };
+
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -36,13 +59,32 @@ function MessageBoard() {
 
   return (
     <div>
-      <h1>Messages</h1>
+      <h1>Messages:</h1>
       {messages.map(message => (
         <div key={message.id}>
           <h2>{message.title}</h2>
           <p>{message.content}</p>
         </div>
       ))}
+      <div>
+        <h2>Post a message</h2>
+        <form onSubmit={postMessage}>
+          <input
+              type="text"
+              value={myMessage.title}
+              onChange={handleChange}
+              placeholder="Title"
+              name='title'
+          />
+          <textarea
+              name="content"
+              value={myMessage.content}
+              onChange={handleChange}
+              placeholder="Content" 
+          />
+          <button type="submit">Post</button>
+        </form>
+      </div>
     </div>
   );
 }
