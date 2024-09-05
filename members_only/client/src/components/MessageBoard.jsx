@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import axios from 'axios';
@@ -25,11 +25,8 @@ function MessageBoard() {
 
   const postMessage = async (e) => {
     e.preventDefault();
-    const title = e.target[0].value;
-    const content = e.target[1].value;
-
     try {
-      await axios.post('/api/messages', { title, content });
+      await axios.post('/api/messages', myMessage);
       fetchMessages();
       setMyMessage({title: '', content: ''});
     } catch (error) {
@@ -44,9 +41,8 @@ function MessageBoard() {
     });
   };
 
-
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
   }
 
   if (!user) {
@@ -54,36 +50,49 @@ function MessageBoard() {
   }
 
   if (!user.membership_status) {
-    return <div>You need to be a member to view messages.</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-xl text-red-600">You need to be a member to view messages.</p>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <h1>Messages:</h1>
-      {messages.map(message => (
-        <div key={message.id}>
-          <h2>{message.title}</h2>
-          <p>{message.content}</p>
-        </div>
-      ))}
-      <div>
-        <h2>Post a message</h2>
-        <form onSubmit={postMessage}>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6 text-center">Message Board</h1>
+      
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold mb-4">Post a message</h2>
+        <form onSubmit={postMessage} className="space-y-4">
           <input
-              type="text"
-              value={myMessage.title}
-              onChange={handleChange}
-              placeholder="Title"
-              name='title'
+            type="text"
+            value={myMessage.title}
+            onChange={handleChange}
+            placeholder="Title"
+            name='title'
+            className="w-full p-2 border border-gray-300 rounded"
           />
           <textarea
-              name="content"
-              value={myMessage.content}
-              onChange={handleChange}
-              placeholder="Content" 
+            name="content"
+            value={myMessage.content}
+            onChange={handleChange}
+            placeholder="Content" 
+            className="w-full p-2 border border-gray-300 rounded h-32"
           />
-          <button type="submit">Post</button>
+          <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            Post Message
+          </button>
         </form>
+      </div>
+      
+      <div>
+        <h2 className="text-2xl font-semibold mb-4">Messages</h2>
+        {messages.map(message => (
+          <div key={message.id} className="bg-white shadow-md rounded-lg p-6 mb-4">
+            <h3 className="text-xl font-semibold mb-2">{message.title}</h3>
+            <p className="text-gray-700">{message.content}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
