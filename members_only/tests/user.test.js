@@ -234,7 +234,6 @@ describe("Message Board API", () => {
     // Create a message
     const messageRes = await agent
       .post("/api/messages")
-      .set('Authorization', `Bearer ${authToken}`)
       .send({
         title: "Hello, World!",
         content: "This is a test message",
@@ -244,8 +243,7 @@ describe("Message Board API", () => {
     
     // Fetch all messages
     const res = await agent
-      .get("/api/messages")
-      .set('Authorization', `Bearer ${authToken}`);
+      .get("/api/messages");
 
     console.log("Response: ", res.status, res.body);
     expect(res.statusCode).toEqual(200);
@@ -267,3 +265,100 @@ describe("Message Board API", () => {
     expect(res.body).toHaveProperty("message", "No token provided");
   });
 });
+
+describe("Invite Code API", () => {
+  beforeEach(async () => {
+    try {
+      await db.query("DELETE FROM messages");
+      await db.query("DELETE FROM users");
+
+      await agent
+        .post("/api/register")
+        .send({
+          first_name: "John",
+          last_name: "Doe",
+          email: "example@email.com",
+          password: "securepassword123",
+        });
+      
+      const loginRes = await agent
+        .post("/api/login")
+        .send({
+          email: "example@email.com",
+          password: "securepassword123",
+        });
+      
+      authToken = loginRes.body.token;
+
+          
+    } catch (error) {
+      console.error("Error in beforeEach:", error);
+      throw error;
+    }
+  });
+
+  it("should fetch a question", async () => {
+    const res = await agent
+      .get("/api/question");
+
+    console.log("Response: ", res.status, res.body);
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty("question");
+  });
+
+  it("should response with an invite code if the answer is correct", async () => {
+    const questionRes = await agent
+      .get("/api/question");
+
+    let question = questionRes.body.question;
+    question = question.slice(8, -1); // Remove the question mark
+    const operator_idx = question.search(/[+\-*]/);
+    const num1 = parseInt(question.slice(0, operator_idx));
+    const operator = question[operator_idx];
+    const num2 = parseInt(question.slice(operator_idx + 1));
+    let answer;
+
+    switch (operator) {
+      case "+":
+        answer = num1 + num2;
+        break;
+      case "-":
+        answer = num1 - num2;
+        break;
+      case "*":
+        answer = num1 * num2;
+        break;
+      case "/":
+        answer = num1 / num2;
+        break;
+    }
+
+    const res = await agent
+      .post("/api/check-answer")
+      .send({
+        token: questionRes.body.token,
+        answer: answer.toString(),
+      });
+
+    console.log("Response: ", res.status, res.body);
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty("invite_code");
+
+  })
+
+  it("should not response with an invite code if the answer is incorrect", async () => {
+    const questionRes = await agent
+      .get("/api/question");
+
+    const res = await agent
+      .post("/api/check-answer")
+      .send({
+        token: questionRes.body.token,
+        answer: "-2000",
+      });
+
+    console.log("Response: ", res.status, res.body);
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).toHaveProperty("message", "Incorrect answer");
+  });
+})

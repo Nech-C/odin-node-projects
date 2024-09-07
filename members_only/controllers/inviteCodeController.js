@@ -1,8 +1,6 @@
-// In controllers/mathQuestionController.js
-
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-
+const asyncHandler = require('express-async-handler');
 // In-memory storage for temporary data
 const attemptStorage = {};
 
@@ -51,10 +49,11 @@ exports.getQuestion = asyncHandler(async (req, res) => {
     );
 
     // Send the question text and token to the client
-    res.json({ 
-        token: token,
-        question: question
-    });
+    res.status(200)
+        .json({ 
+            token: token,
+            question: question
+        });
 });
 
 exports.checkAnswer = asyncHandler(async (req, res) => {
@@ -81,9 +80,9 @@ exports.checkAnswer = asyncHandler(async (req, res) => {
         if (parseInt(answer) === correctAnswer) {
             // Generate invite code here
             const inviteCode = generateUniqueInviteCode();
-            res.json({ success: true, inviteCode: inviteCode });
+            res.json({ success: true, invite_code: inviteCode });
         } else {
-            res.json({ success: false, message: 'Incorrect answer' });
+            res.status(400).json({ success: false, message: 'Incorrect answer' });
         }
     } catch (error) {
         if (error instanceof jwt.TokenExpiredError) {
