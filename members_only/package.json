@@ -9,7 +9,7 @@
     "client": "cd client && npm run dev",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "build": "cd client && npm run build",
-    "test": "jest"
+    "test": "jest --detectOpenHandles"
   },
   "keywords": [],
   "author": "Nech",
