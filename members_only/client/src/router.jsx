@@ -6,6 +6,7 @@ import App from "./App";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import MessageBoard from "./components/MessageBoard";
+import Question from "./components/Question";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
   {
     path: "/messageboard",
     element: <MessageBoard />
+  },
+  {
+    path:"/question",
+    element:<Question/>
   }
 ]);
 

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function MessageBoard() {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const [messages, setMessages] = useState([]);
   const [myMessage, setMyMessage] = useState({title: '', content: ''});
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user && user.membership_status) {
@@ -41,6 +42,15 @@ function MessageBoard() {
     });
   };
 
+  const HandleLogout = () => {
+    logout();
+    navigate('/login');
+  }
+
+  const HandleBecomeMember = () => {
+    navigate('/question');
+  }
+
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
   }
@@ -51,14 +61,19 @@ function MessageBoard() {
 
   if (!user.membership_status) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-screen flex-col">
         <p className="text-xl text-red-600">You need to be a member to view messages.</p>
+        <button className='bg-emerald-500 py-2 px-4 rounded text-white mt-10' onClick={HandleBecomeMember}>Become a member</button>
+        <button className='bg-red-500 py-2 px-4 rounded text-white mt-4' onClick={HandleLogout}>Logout</button>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-end gap-5">
+          <button className='bg-red-500 py-2 px-4 rounded text-white' onClick={HandleLogout}>Logout</button>
+        </div>
       <h1 className="text-3xl font-bold mb-6 text-center">Message Board</h1>
       
       <div className="mb-8">
@@ -87,6 +102,7 @@ function MessageBoard() {
       
       <div>
         <h2 className="text-2xl font-semibold mb-4">Messages</h2>
+        
         {messages.map(message => (
           <div key={message.id} className="bg-white shadow-md rounded-lg p-6 mb-4">
             <h3 className="text-xl font-semibold mb-2">{message.title}</h3>
