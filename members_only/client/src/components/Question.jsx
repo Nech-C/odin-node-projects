@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 
@@ -34,6 +35,7 @@ function Question() {
                 <div className="bg-gray-200 p-4 rounded-lg">
                     <code className="text-2xl font-mono">{inviteCode}</code>
                 </div>
+                <Link to='/messageboard' className="mt-8 text-blue-500">Go to Message Board</Link>
             </div>
         );
     }

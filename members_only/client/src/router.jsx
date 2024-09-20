@@ -7,6 +7,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import MessageBoard from "./components/MessageBoard";
 import Question from "./components/Question";
+import Invite from "./components/Invite";
 
 const router = createBrowserRouter([
   {
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
   {
     path:"/question",
     element:<Question/>
+  },
+  {
+    path:"/invite",
+    element:<Invite/>
   }
 ]);
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 
 function MessageBoard() {
@@ -65,6 +65,7 @@ function MessageBoard() {
         <p className="text-xl text-red-600">You need to be a member to view messages.</p>
         <button className='bg-emerald-500 py-2 px-4 rounded text-white mt-10' onClick={HandleBecomeMember}>Become a member</button>
         <button className='bg-red-500 py-2 px-4 rounded text-white mt-4' onClick={HandleLogout}>Logout</button>
+        <Link to='/invite' className="mt-8 text-blue-500">Have an invite code?</Link>
       </div>
     );
   }
