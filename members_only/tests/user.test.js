@@ -361,4 +361,37 @@ describe("Invite Code API", () => {
     expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty("message", "Incorrect answer");
   });
+
+  it("should make a user a member with a valid invite code", async () => {
+    const questionRes = await agent
+      .get('/api/question');
+
+    const answer = eval(questionRes.body.question.slice(8, -1));
+    const response = await agent
+      .post('/api/check-answer')
+      .send({
+        token: questionRes.body.token,
+        answer: answer.toString()
+      });
+
+      console.log('Response:', response.status, response.body);
+
+      expect(response.statusCode).toEqual(200);
+      expect(response.body).toHaveProperty('invite_code');
+
+      const inviteCode = response.body.invite_code;
+
+      const res = await agent
+        .post('/api/validate-invite-code')
+        .send({
+          invite_code: inviteCode
+        });
+
+      console.log('Response:', res.status, res.body);
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveProperty('valid', true);
+      expect(res.body).toHaveProperty('user');
+      expect(res.body.user).toHaveProperty('membership_status', true);
+  });
 })

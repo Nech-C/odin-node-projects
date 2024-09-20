@@ -1,8 +1,10 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const asyncHandler = require('express-async-handler');
+const makeMember = require('../db/queries').makeMember;
 // In-memory storage for temporary data
 const attemptStorage = {};
+const inviteCodeStorage = [];
 
 // Function to generate a random math question
 function generateMathQuestion() {
@@ -80,7 +82,9 @@ exports.checkAnswer = asyncHandler(async (req, res) => {
         if (parseInt(answer) === correctAnswer) {
             // Generate invite code here
             const inviteCode = generateUniqueInviteCode();
+            inviteCodeStorage.push(inviteCode);
             res.json({ success: true, invite_code: inviteCode });
+            
         } else {
             res.status(400).json({ success: false, message: 'Incorrect answer' });
         }
@@ -92,6 +96,21 @@ exports.checkAnswer = asyncHandler(async (req, res) => {
         }
     }
 });
+
+exports.validateInviteCode = asyncHandler(async (req, res) => {
+    const { invite_code } = req.body;
+    console.log(invite_code);
+    if (inviteCodeStorage.includes(invite_code)) {
+        console.log('index: %d', inviteCodeStorage.indexOf(invite_code));
+        inviteCodeStorage.splice(inviteCodeStorage.indexOf(invite_code), 1);
+        const user = await makeMember(req.user.id);
+        res.json({ valid: true, user });
+    } else {
+        res.status(400).json({ valid: false });
+    }
+});
+
+
 
 function generateUniqueInviteCode() {
     // Generate a random 6-character alphanumeric code

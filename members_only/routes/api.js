@@ -21,5 +21,6 @@ router.post('/messages', verifyToken, messageController.postMessage);
 
 router.get('/question', verifyToken, inviteCodeController.getQuestion);
 router.post('/check-answer', verifyToken, inviteCodeController.checkAnswer);
+router.post('/validate-invite-code', verifyToken, inviteCodeController.validateInviteCode);
 
 module.exports = router;

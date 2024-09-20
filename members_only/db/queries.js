@@ -41,9 +41,20 @@ async function insertMessage(title, content, user_id) {
     }
 }
 
+async function makeMember(user_id) {
+    try {
+        const { rows } = await pool.query("UPDATE users SET membership_status = true WHERE id = $1 RETURNING *", [user_id]);
+        return rows[0];
+    } catch (error) {
+        console.error("Error making user a member:", error);
+        throw error;
+    }
+}
+
 module.exports = {
     getUser,
     insertUser,
     getMessages,
-    insertMessage
+    insertMessage,
+    makeMember
 };
