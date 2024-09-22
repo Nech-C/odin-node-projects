@@ -5,7 +5,7 @@ async function getUser(first_name, last_name) {
     return rows[0];
 }
 
-async function insertUser(first_name, last_name, email, password_hash, membership_status = true, is_admin = false) {
+async function insertUser(first_name, last_name, email, password_hash, membership_status = false, is_admin = false) {
     try {
         const { rows } = await pool.query(
             "INSERT INTO users (first_name, last_name, email, password_hash, membership_status, is_admin) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
