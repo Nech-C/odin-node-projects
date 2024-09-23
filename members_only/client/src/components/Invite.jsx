@@ -6,6 +6,7 @@ import axios from 'axios';
 function Invite() {
     const [code, setCode] = useState('');
     const [error, setError] = useState('');
+    const 
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {

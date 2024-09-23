@@ -86,7 +86,7 @@ describe('User Registration API', () => {
       expect(res.body.user).toHaveProperty('email', 'john.doe@example.com');
       expect(res.body.user).toHaveProperty('first_name', 'John');
       expect(res.body.user).toHaveProperty('last_name', 'Doe');
-      expect(res.body.user).toHaveProperty('membership_status', true);
+      expect(res.body.user).toHaveProperty('membership_status', false);
       expect(res.body.user).toHaveProperty('is_admin', false);
     } catch (error) {
       console.error('Error in test:', error);
@@ -238,7 +238,8 @@ describe("Message Board API", () => {
         title: "Hello, World!",
         content: "This is a test message",
       });
-    
+    // set user membership status to true
+    db.query("UPDATE users SET membership_status = true WHERE email = 'example@email.com'");
     expect(messageRes.statusCode).toEqual(201);
     
     // Fetch all messages

@@ -104,6 +104,17 @@ exports.validateInviteCode = asyncHandler(async (req, res) => {
         console.log('index: %d', inviteCodeStorage.indexOf(invite_code));
         inviteCodeStorage.splice(inviteCodeStorage.indexOf(invite_code), 1);
         const user = await makeMember(req.user.id);
+        const newToken = jwt.sign(
+            { id: user.id, email: user.email, membership_status: user.membership_status },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+        res.cookie('token', newToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        })
         res.json({ valid: true, user });
     } else {
         res.status(400).json({ valid: false });
