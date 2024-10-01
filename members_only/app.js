@@ -46,7 +46,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.use((req, res, next) => {
-  console.log('Session:', req.session);
+  console.log('JWT token:', req.cookies.token);
   console.log('User:', req.user);
   next();
 });

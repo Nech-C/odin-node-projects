@@ -10,7 +10,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkAuthStatus();
+    refreshUser();
+    checkAuthStatus()
   }, []);
 
   const checkAuthStatus = async () => {
@@ -23,6 +24,15 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
   };
+
+  const refreshUser = async () => {
+    try {
+      const res = await axios.get('api/user');
+      setUser(res.data.user);
+    } catch (error) {
+      console.error('Failed to refresh user data', error);
+    }
+  }
 
   const login = async (email, password) => {
     try {
@@ -45,7 +55,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

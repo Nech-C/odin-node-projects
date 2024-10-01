@@ -1,23 +1,30 @@
 import react, { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+import {useAuth} from '../contexts/AuthContext';
 
 function Invite() {
     const [code, setCode] = useState('');
     const [error, setError] = useState('');
-    const 
+    const { refreshUser } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const res = await axios.post('/api/validate-invite-code', { invite_code: code });
+        try {
 
-        if (res.data.valid) {
-            alert('You are now a member!');
-            navigate('/messageboard');
-        } else {
-            setError('Invalid invite code');
+        
+            const res = await axios.post('/api/validate-invite-code', { invite_code: code });
+
+            if (res.data.valid) {
+                await refreshUser();
+                alert('You are now a member!');
+                navigate('/messageboard');
+            } else {
+                setError('Invalid invite code');
+            }
+        } catch (error) {
+            setError('An error occurred');
         }
     }
 

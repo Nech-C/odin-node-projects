@@ -4,6 +4,7 @@ const { body, validationResult } = require("express-validator");
 const pool = require('../db/pool');
 const {insertUser} = require('../db/queries');
 const jwt = require("jsonwebtoken");
+
 exports.register = [
     body("first_name")
         .trim()
@@ -114,4 +115,30 @@ exports.login = asyncHandler(async (req, res) => {
         console.error("Login error:", error);
         res.status(500).json({ message: "Internal server error" });
     }
+});
+
+exports.user = asyncHandler(async (req, res) => {
+    if (req.user != null) {
+        const user = await pool.query('SELECT * FROM users WHERE id=$1');
+        const token = jwt.sign(
+            { id: user.rows[0].id, email: user.rows[0].email, membership_status: user.rows[0].membership_status },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
+
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+
+        res.status(200).json({
+            message: "New token acquired",
+            user: user[0]
+        })
+    } else {
+        res.status(401).json({ message: "Invalid user." })
+    }
+
 });

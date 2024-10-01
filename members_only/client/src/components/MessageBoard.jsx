@@ -4,10 +4,14 @@ import { Navigate, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 
 function MessageBoard() {
-  const { user, loading, logout } = useAuth();
+  const { user, loading, logout, refreshUser } = useAuth();
   const [messages, setMessages] = useState([]);
   const [myMessage, setMyMessage] = useState({title: '', content: ''});
   const navigate = useNavigate();
+
+    useEffect(() => {
+      refreshUser();
+  });
 
   useEffect(() => {
     if (user && user.membership_status) {
