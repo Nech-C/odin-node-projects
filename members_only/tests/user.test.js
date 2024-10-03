@@ -157,7 +157,6 @@ describe('User Registration API', () => {
   }, 30000);
 });
 
-
 describe('User Login API', () => {
   it('should login a user with correct credentials', async () => {
     // First, register a user
@@ -198,6 +197,54 @@ describe('User Login API', () => {
     expect(res.body).toHaveProperty('message', 'Invalid credentials');
   });
 });
+
+describe('User utility API', () => {
+  let user;
+  beforeEach(async () => {
+    try {
+      await db.query("DELETE FROM messages");
+      await db.query("DELETE FROM users");
+      console.log("Messages and users tables cleared");
+
+      await agent
+        .post("/api/register")
+        .send({
+          first_name: "John",
+          last_name: "Doe",
+          email: "example@email.com",
+          password: "securepassword123",
+        });
+
+      const loginRes = await agent
+        .post("/api/login")
+        .send({
+          email: "example@email.com",
+          password: "securepassword123",
+        });
+
+        user = loginRes.body.user;
+
+    } catch (error) {
+      console.error("Error in beforeEach:", error);
+      throw error;
+    }
+  });
+
+  it('should fetch the current user', async () => {
+    
+    // modify the user's membership status
+    db.query("UPDATE users SET membership_status = true WHERE email = 'example@email.com'");
+    const res = await agent
+      .get('/api/user')
+      
+    console.log('old user:', user);
+    console.log('updated user:', res.body);
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('user');
+    expect(res.body.user).toHaveProperty('membership_status', true);
+
+  })
+})
 
 describe("Message Board API", () => {
   beforeEach(async () => {
