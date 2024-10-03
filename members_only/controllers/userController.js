@@ -119,7 +119,7 @@ exports.login = asyncHandler(async (req, res) => {
 
 exports.user = asyncHandler(async (req, res) => {
     if (req.user != null) {
-        const user = await pool.query('SELECT * FROM users WHERE id=$1');
+        const user = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
         const token = jwt.sign(
             { id: user.rows[0].id, email: user.rows[0].email, membership_status: user.rows[0].membership_status },
             process.env.JWT_SECRET,
@@ -135,7 +135,7 @@ exports.user = asyncHandler(async (req, res) => {
 
         res.status(200).json({
             message: "New token acquired",
-            user: user[0]
+            user: user.rows[0]
         })
     } else {
         res.status(401).json({ message: "Invalid user." })
