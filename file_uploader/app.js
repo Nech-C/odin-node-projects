@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
+let { PrismaClient } = require('@prisma/client');
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
