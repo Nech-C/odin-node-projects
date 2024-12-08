@@ -1,10 +1,10 @@
-const { PrismaClient } = require("@prisma/client")
-const asyncHandler = require("express-async-handler")
-const { body, validationResult } = require("express-validator")
+const { PrismaClient } = require("@prisma/client");
+const asyncHandler = require("express-async-handler");
+const { body, validationResult } = require("express-validator");
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
-export const createUser = [
+module.exports.createUser = [
     body('uname')
         .trim()
         .isLength({ min:6 })
@@ -45,4 +45,4 @@ export const createUser = [
                 res.status(500).json({ message: "Internal server error" })
             }
         })
-]
+];
