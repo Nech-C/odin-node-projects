@@ -7,18 +7,7 @@ router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 
-router.put('/new', function(req, res, next) {
-  try {
-    user = userController.createUser(req, res)
-  } catch (error) {
-    console.log(error)
-  }
+router.post('/new', userController.createUser);
 
-  if (user) {
-    res.send("User create!")
-  } else {
-    res.send("User creation failed.")
-  }
-})
 
 module.exports = router;
