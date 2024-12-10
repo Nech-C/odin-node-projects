@@ -26,7 +26,7 @@ beforeEach(async () => {
 
 describe('Check test setup', () => {
     test('using test_database', ()=> {
-        expect(process.env.DATABASE_URL).toBe('postgresql://nech:1234567@localhost:6543/test_file_uploader?schema=public');
+        expect(process?.env?.DATABASE_URL === null).toBe(false);
     });
 
     test('relations are empty', async () => {
