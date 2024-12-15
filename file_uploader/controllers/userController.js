@@ -56,3 +56,19 @@ module.exports.createUser = [
         }
     })
 ];
+
+module.exports.getUser = asyncHandler(async (req, res, next) => {
+    const userId = req.body.userId;
+
+    const user = prisma.user.findFirst({
+        where: {
+            id: userId
+        }
+    });
+
+    if (user) {
+        res.status(200).send(user);
+    } else {
+        res.status(404).send('user not found!');
+    }
+});
