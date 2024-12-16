@@ -4,10 +4,14 @@ const userController = require('../controllers/userController')
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+  res.status(200).render('login')
 });
 
-router.post('/new', userController.createUser);
+router.get('/signup', function(req, res, next) {
+  res.status(200).render('sign_up');
+})
+
+router.post('/signup', userController.createUser);
 
 
 module.exports = router;

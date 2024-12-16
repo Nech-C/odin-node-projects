@@ -54,7 +54,7 @@ describe('Check test setup', () => {
 describe('Test user apis', () => {
     test('register new user', async () => {
         const response = await request(app)
-            .post('/user/new')
+            .post('/user/signup')
             .send({ uname: 'Alice24', pword: 'alice12345' });
         const expected_response = 'User create!'
         expect(response.text).toEqual(expected_response)
