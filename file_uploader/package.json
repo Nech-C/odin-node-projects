@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node ./bin/www",
     "dev": "DEBUG=file-uploader dotenv -e .env.dev -- node --watch ./bin/www ",
+    "reset-dev-db": "dotenv -e .env.dev -- npx prisma migrate reset",
     "test": "dotenv -e .env.test -- npx prisma migrate reset && dotenv -e .env.test -- jest"
   },
   "dependencies": {
