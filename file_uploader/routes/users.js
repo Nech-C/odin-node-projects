@@ -7,6 +7,8 @@ router.get('/', function(req, res, next) {
   res.status(200).render('login')
 });
 
+router.post('/', userController.login);
+
 router.get('/signup', function(req, res, next) {
   res.status(200).render('sign_up');
 })

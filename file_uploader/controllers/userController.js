@@ -72,3 +72,24 @@ module.exports.getUser = asyncHandler(async (req, res, next) => {
         res.status(404).send('user not found!');
     }
 });
+
+module.exports.login = asyncHandler(async (req, res, next) => {
+    try {
+        user = await prisma.user.findUnique({
+            where: {
+                username: req.body.uname,
+                password: req.body.pword,
+            }
+        })
+    } catch (errors) {
+        res.status(500).send({message: "server error"});
+        console.log(errors)
+    }
+
+    if (user) {
+        res.status(200).send("you are logged in!");
+    } else {
+        res.status(404).send("user not found!")
+    }
+
+})

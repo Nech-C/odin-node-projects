@@ -59,4 +59,24 @@ describe('Test user apis', () => {
         const expected_response = 'User create!'
         expect(response.text).toEqual(expected_response)
     })
+
+    test('log in with valid credentials', async ()=> {
+        const response = await request(app)
+            .post('/user')
+            .send({ uname: 'Alice24', pword: 'alice12345' });
+        
+        const expected_response = 'you are logged in!'
+        console.log(response)
+        expect(response.text).toEqual(expected_response)
+    })
+
+    test('log in with invalid credentials', async () => {
+        const response = await request(app)
+            .post('/user')
+            .send({ uname: 'Alice24', pword: 'alice1234' });
+        
+        const expected_response = 'user not found!'
+        console.log(response)
+        expect(response.text).toEqual(expected_response)
+    })
 });
