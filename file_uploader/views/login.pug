@@ -1,0 +1,14 @@
+extends layout 
+block content 
+  h1 Log in to your account
+  form(method='POST')
+    section 
+      label(for='uname') Username: 
+      input#uname(type='text' name='uname')
+    section 
+      label(for='pword') Password: 
+      input#pword(type='password' name='pword')
+    button(type='submit') Log in 
+  
+  p Don't have an account yet?
+    a(href='/user/signup') Sign up!

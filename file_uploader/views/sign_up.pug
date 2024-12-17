@@ -1,0 +1,12 @@
+extends layout.pug 
+
+block content 
+  h1 Create a new account
+  form(method='POST' action='/user/signup')
+    section 
+      label(for='unmae') Username: 
+      input#uname(name='uname' type='text')
+    section   
+      lable(for='pword') Password: 
+      input#pword(name='pword' type='password')
+    button(type='submit') Sign up
