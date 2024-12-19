@@ -75,7 +75,7 @@ describe('Test user apis', () => {
             .post('/login')
             .send({ username: 'Alice24', password: 'alice1234' });
         
-        const expected_response = 'log in'
+        const expected_response = 'Redirecting to /login'
         // console.log(response)
         expect(response.text).toContain(expected_response)
     })

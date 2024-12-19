@@ -17,7 +17,9 @@ const localStrategy = new LocalStrategy(async function verify(username, password
 
     if (user.password === password) {
       return cb(null, user);
-    }
+    } 
+
+    return cb(null, false, { message: 'Incorrect username or password' })
   } catch (error) {
     cb(error);
   }
