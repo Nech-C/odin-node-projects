@@ -41,11 +41,15 @@ passport.serializeUser(function(user, cb) {
   });
 });
 
-passport.deserializeUser(function(user, cb) {
-  process.nextTick(function() {
-    return cb(null, user);
-  })
+passport.deserializeUser(async function(id, cb) {
+  try {
+    const user = await prisma.user.findUnique({ where: { id } });
+    cb(null, user);
+  } catch (err) {
+    cb(err);
+  }
 });
+
 
 
 app.use(logger('dev'));
