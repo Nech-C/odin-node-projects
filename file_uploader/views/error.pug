@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  h1 An Error Occurred
+  p #{message}
+
+  if error
+    h2 Error Details
+    ul
+      li Status Code: #{status || 500}
+      if error.stack
+        li Preformatted Stack Trace:
+        pre= error.stack

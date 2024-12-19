@@ -5,7 +5,7 @@ const { body, validationResult } = require("express-validator");
 const prisma = new PrismaClient();
 
 module.exports.createUser = [
-    body('uname')
+    body('username')
         .trim()
         .isLength({ min:6 })
         .escape()
@@ -13,7 +13,7 @@ module.exports.createUser = [
         .isAlphanumeric()
         .withMessage('The username cannot have non-alphanumeric characters!'),
 
-    body('pword')
+    body('password')
         .trim()
         .isLength({ min: 8 })
         .withMessage("Password must have at least 8 character!"),
@@ -27,7 +27,7 @@ module.exports.createUser = [
         try {
             const userExists = await prisma.user.findFirst({
                 where: {
-                    username: req.body.uname,
+                    username: req.body.username,
                 },
             })
 
@@ -35,12 +35,12 @@ module.exports.createUser = [
                 return res.status(400).json({ message: "username exists" });
             }
 
-            // console.log(`unmae: ${req.body.uname} pword: ${req.body.pword}`)
+            // console.log(`unmae: ${req.body.username} password: ${req.body.password}`)
 
             const user = await prisma.user.create({
                 data: {
-                    username: req.body.uname,
-                    password: req.body.pword,
+                    username: req.body.username,
+                    password: req.body.password,
                 },
             });
 
@@ -72,24 +72,3 @@ module.exports.getUser = asyncHandler(async (req, res, next) => {
         res.status(404).send('user not found!');
     }
 });
-
-module.exports.login = asyncHandler(async (req, res, next) => {
-    try {
-        user = await prisma.user.findUnique({
-            where: {
-                username: req.body.uname,
-                password: req.body.pword,
-            }
-        })
-    } catch (errors) {
-        res.status(500).send({message: "server error"});
-        console.log(errors)
-    }
-
-    if (user) {
-        res.status(200).send("you are logged in!");
-    } else {
-        res.status(404).send("user not found!")
-    }
-
-})
