@@ -6,6 +6,7 @@ const session = require('express-session')
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var passport = require('passport')
+const { PrismaClient } = require('@prisma/client')
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -13,6 +14,7 @@ let authRouter = require('./routes/auth')
 const localStrategy = require('./strategy')
 
 var app = express();
+const prisma = new PrismaClient();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,27 +26,26 @@ app.use(
   session({
     secret: 'whosyourdaddy',
     resave: false,
-    saveUninitailized: false,
+    saveUninitialized: false,
     cookie: { secure: false },
   })
 );
 
 // passport
 passport.use(localStrategy);
-// app.use(passport.initialize());
-// app.use(passport.session());
-// app.use(passport.authenticate('session'));
+app.use(passport.initialize());
+app.use(passport.session());
 
-passport.serializeUser(function(user, cb) {
-  process.nextTick(function() {
-    cb(null, { id: user.id, username: user.username });
+passport.serializeUser(function (user, cb) {
+  process.nextTick(function () {
+    cb(null, user.id); // Store only the user ID in the session
   });
 });
 
-passport.deserializeUser(async function(id, cb) {
+passport.deserializeUser(async function (id, cb) {
   try {
     const user = await prisma.user.findUnique({ where: { id } });
-    cb(null, user);
+    cb(null, user); // Attach full user object to req.user
   } catch (err) {
     cb(err);
   }
@@ -59,8 +60,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/user', usersRouter);
 app.use('/', authRouter);
+app.use('/user', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

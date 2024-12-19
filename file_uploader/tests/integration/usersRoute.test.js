@@ -62,17 +62,17 @@ describe('Test user apis', () => {
 
     test('log in with valid credentials', async ()=> {
         const response = await request(app)
-            .post('/user')
+            .post('/login')
             .send({ username: 'Alice24', password: 'alice12345' });
         
-        const expected_response = 'you are logged in!'
+        const expected_response = 'Found. Redirecting'
         // console.log(response)
         expect(response.text).toContain(expected_response)
     })
 
     test('log in with invalid credentials', async () => {
         const response = await request(app)
-            .post('/user')
+            .post('/login')
             .send({ username: 'Alice24', password: 'alice1234' });
         
         const expected_response = 'log in'

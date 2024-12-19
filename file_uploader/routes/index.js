@@ -7,7 +7,13 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/home', function(req, res, next) {
-  res.status(200).render('home');
+  const user = req.user;
+  console.log(user);
+  if (user) {
+    return res.status(200).render('home', { user });
+  } else {
+    res.render('login');
+  }
 });
 
 module.exports = router;
