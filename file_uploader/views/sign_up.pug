@@ -10,3 +10,6 @@ block content
       lable(for='password') Password: 
       input#password(name='password' type='password')
     button(type='submit') Sign up
+  if errors 
+    each error in errors 
+      li=error.msg

@@ -17,11 +17,14 @@ module.exports.createUser = [
         .trim()
         .isLength({ min: 8 })
         .withMessage("Password must have at least 8 character!"),
-    
+
     asyncHandler(async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+            console.log(errors.array());
+            return res.status(400).render('sign_up',
+                { errors: errors.array(), username: req.body.username, password: req.body.password}
+            );
         }
 
         try {

@@ -3,3 +3,17 @@ block content
   div 
     button logout
   h1 Hi #{user.username}!
+
+  div 
+    div
+      span your files: 
+      ul 
+        each file in files
+          li 
+            span file.name
+            button delete
+            button download
+            button select
+    div 
+      button upload
+    
