@@ -23,8 +23,10 @@ module.exports.createUser = [
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             console.log(errors.array());
+            const username = req.body.username || '';
+            const password = req.body.password || '';
             return res.status(400).render('sign_up',
-                { errors: errors.array(), username: req.body.username, password: req.body.password}
+                { errors: errors.array(), username: username, password: password}
             );
         }
 
@@ -36,7 +38,12 @@ module.exports.createUser = [
             })
 
             if (userExists) {
-                return res.status(400).json({ message: "username exists" });
+                const errors = [{msg: "username exists!"}];
+                const username = req.body.username || '';
+                const password = req.body.password || '';
+                return res.status(400).render('sign_up',
+                    { errors: errors, username: username, password: password}
+                );
             }
 
             // console.log(`unmae: ${req.body.username} password: ${req.body.password}`)

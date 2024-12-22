@@ -5,10 +5,10 @@ block content
   form(method='POST' action='/user/signup')
     section 
       label(for='username') Username: 
-      input#username(name='username' type='text')
+      input#username(name='username' type='text' value=username)
     section   
       lable(for='password') Password: 
-      input#password(name='password' type='password')
+      input#password(name='password' type='password', value=password)
     button(type='submit') Sign up
   if errors 
     each error in errors 

@@ -6,8 +6,8 @@ const router = express.Router();
 
 /* GET users listing. */
 router.get('/signup', function(req, res, next) {
-  res.status(200).render('sign_up');
-})
+  res.status(200).render('sign_up', {username: '', password: ''});
+});
 
 router.post('/signup', userController.createUser);
 
