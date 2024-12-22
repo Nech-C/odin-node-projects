@@ -1,4 +1,5 @@
 const LocalStrategy = require('passport-local');
+const bcrypt = require('bcrypt')
 let { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient()
@@ -15,11 +16,13 @@ const localStrategy = new LocalStrategy(async function verify(username, password
       return cb(null, false, { message: 'Incorrect username or password' });
     }
 
-    if (user.password === password) {
-      return cb(null, user);
-    } 
+    const isMatch = await bcrypt.compare(password, user.password);
 
-    return cb(null, false, { message: 'Incorrect username or password' })
+    if (isMatch) {
+      return cb(null, user);
+    }
+
+    cb(null, false, { message: 'Incorrect username or password' });
   } catch (error) {
     cb(error);
   }

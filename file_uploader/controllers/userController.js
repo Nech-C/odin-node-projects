@@ -1,6 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
+const bcrypt = require('bcrypt')
 
 const prisma = new PrismaClient();
 
@@ -39,11 +40,11 @@ module.exports.createUser = [
             }
 
             // console.log(`unmae: ${req.body.username} password: ${req.body.password}`)
-
+            hashed_password = await bcrypt.hash(req.body.password, 10)
             const user = await prisma.user.create({
                 data: {
                     username: req.body.username,
-                    password: req.body.password,
+                    password: hashed_password,
                 },
             });
 
