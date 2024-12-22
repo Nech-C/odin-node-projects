@@ -17,6 +17,32 @@ model user {
   id Int @id @default(autoincrement())
   username String @unique
   password String
+  files file[]
+  folders folder[]
+}
+
+model file {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  name String
+  size Int
+  url String
+  folder folder? @relation(fields:[folderId], references: [id])
+  folderId Int?
+  owner user @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+model folder {
+  id Int @id @default(autoincrement())
+  name String
+  createdAt DateTime @default(now())
+  parentId   Int?
+  parent     folder?  @relation("FolderToFolder", fields: [parentId], references: [id])
+  children   folder[] @relation("FolderToFolder")
+  files      file[]
+  owner      user     @relation(fields: [userId], references: [id])
+  userId     Int
 }
 
 model Session {
