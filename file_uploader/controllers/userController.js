@@ -56,14 +56,24 @@ module.exports.createUser = [
             });
 
             if (user) {
-                res.status(200).send("User create!")
+                res.status(200).send("User create!");
               } else {
-                res.status(500).send("User creation failed.")
+                const errors = [{msg: "User creation failed."}];
+                const username = req.body.username || '';
+                const password = req.body.password || '';
+                return res.status(500).render('sign_up',
+                    { errors: errors, username: username, password: password}
+                );
               }
 
         } catch (error) {
             console.log('Error in user registration', error);
-            res.status(500).json({ message: "Internal server error" });
+            const errors = [{msg: "Internal server error"}];
+            const username = req.body.username || '';
+            const password = req.body.password || '';
+            return res.status(500).render('sign_up',
+                { errors: errors, username: username, password: password}
+            );
         }
     })
 ];

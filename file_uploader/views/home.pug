@@ -1,7 +1,9 @@
 extends layout 
 block content 
+  - var files = files || []
   div 
-    button logout
+    button
+      a(href='/user/logout') logout
   h1 Hi #{user.username}!
 
   div 
