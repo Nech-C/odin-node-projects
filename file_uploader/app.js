@@ -8,9 +8,10 @@ var logger = require('morgan');
 var passport = require('passport')
 const { PrismaClient } = require('@prisma/client')
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+let indexRouter = require('./routes/index');
+let usersRouter = require('./routes/users');
 let authRouter = require('./routes/auth')
+let uploadRouter = require('./routes/upload')
 const localStrategy = require('./strategy')
 
 var app = express();
@@ -22,6 +23,7 @@ app.set('view engine', 'pug');
 
 // session
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(
   session({
     secret: 'whosyourdaddy',
@@ -62,7 +64,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/', authRouter);
 app.use('/user', usersRouter);
-
+app.use('/', uploadRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));

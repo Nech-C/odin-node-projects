@@ -17,5 +17,8 @@ block content
             button download
             button select
     div 
-      button upload
+      form(action='/upload' method='POST' enctype='multipart/form-data')
+        input(type='file' name='file' multiple)
+        button(type='submit') Upload file
+
     
