@@ -17,8 +17,8 @@ model user {
   id Int @id @default(autoincrement())
   username String @unique
   password String
-  files file[]
-  folders folder[]
+  rootFolder folder @relation(fields: [rootFolderId], references: [id])
+  rootFolderId Int @unique
 }
 
 model file {
@@ -29,8 +29,6 @@ model file {
   url String
   folder folder? @relation(fields:[folderId], references: [id])
   folderId Int?
-  owner user @relation(fields: [userId], references: [id])
-  userId Int
 }
 
 model folder {
@@ -41,8 +39,7 @@ model folder {
   parent     folder?  @relation("FolderToFolder", fields: [parentId], references: [id])
   children   folder[] @relation("FolderToFolder")
   files      file[]
-  owner      user     @relation(fields: [userId], references: [id])
-  userId     Int
+  owner      user? @relation
 }
 
 model Session {
