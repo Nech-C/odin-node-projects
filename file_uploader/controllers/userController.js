@@ -48,24 +48,28 @@ module.exports.createUser = [
 
             // console.log(`unmae: ${req.body.username} password: ${req.body.password}`)
             hashed_password = await bcrypt.hash(req.body.password, 10)
-            const user = await prisma.user.create({
-                data: {
-                    username: req.body.username,
-                    password: hashed_password,
-                },
+            
+            const [user, rootFolder] = await prisma.$transaction([
+                prisma.user.create({
+                    data: {
+                        username: req.body.username,
+                        password: req.body.password,
+                    }
+                }),
+                prisma.folder.create({
+                    data: {
+                        name: 'root',
+                        parentId: null,
+                    }
+                }),
+            ]);
+
+            await prisma.user.update({
+                where: { id: user.id },
+                data: { rootFolderId: rootFolder.id },
             });
 
-            if (user) {
-                res.status(200).send("User create!");
-              } else {
-                const errors = [{msg: "User creation failed."}];
-                const username = req.body.username || '';
-                const password = req.body.password || '';
-                return res.status(500).render('sign_up',
-                    { errors: errors, username: username, password: password}
-                );
-              }
-
+            res.status(200).send("User create!");
         } catch (error) {
             console.log('Error in user registration', error);
             const errors = [{msg: "Internal server error"}];

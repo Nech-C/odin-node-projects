@@ -7,6 +7,7 @@ const app = require("../../app")
 
 const RELATIONS = ['user', 'Session'] 
 
+let prisma;
 beforeAll(async () => {
     prisma = new PrismaClient();
     await prisma.$connect(); // Ensure the Prisma Client connects to the database
@@ -41,10 +42,11 @@ describe('Check test setup', () => {
             data: {
               username: 'elsa@prisma.io',
               password: 'Elsa Prisma',
+              rootFolderId: null,
             },
         });
         delete user.id;
-        expect(user).toEqual({username: 'elsa@prisma.io', password: 'Elsa Prisma'});
+        expect(user).toEqual({username: 'elsa@prisma.io', password: 'Elsa Prisma', rootFolderId: null});
         
         
     })
@@ -56,8 +58,22 @@ describe('Test user apis', () => {
         const response = await request(app)
             .post('/user/signup')
             .send({ username: 'Alice24', password: 'alice12345' });
-        const expected_response = 'User create!'
-        expect(response.text).toEqual(expected_response)
+        const expected_response = 'User create!';
+        expect(response.text).toEqual(expected_response);
+
+        const createdUser = prisma.user.findUnique({
+            where: {
+                username: 'Alice24'
+            }
+        });
+        expect(createdUser).not.toBeNull();
+
+        const rootFolder = prisma.folder.findUnique({
+            where: {
+                userId: createdUser.id
+            }
+        });
+        expect(rootFolder).not.toBeNull();
     })
 
     test('log in with valid credentials', async ()=> {
