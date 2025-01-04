@@ -6,6 +6,8 @@
     "start": "node ./bin/www",
     "dev": "DEBUG=file-uploader dotenv -e .env.dev -- node --watch ./bin/www ",
     "migrate-dev": "dotenv -e .env.dev -- npx prisma migrate dev",
+    "migrate-deploy": "dotenv -e .env.dev -- npx prisma migrate deploy",
+    "migrate-deploy-test": "dotenv -e .env.test -- npx prisma migrate deploy",
     "reset-dev-db": "dotenv -e .env.dev -- npx prisma migrate reset",
     "test": "dotenv -e .env.test -- npx prisma migrate reset && dotenv -e .env.test -- jest"
   },
