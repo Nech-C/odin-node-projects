@@ -16,6 +16,15 @@ module.exports.upload = [
 
       const uploadedFiles = req.files.file;
       const savedFiles = [];
+      
+      // root will be used if the parent folder is not specified
+      let parentId = req.body.parentId
+      if (!req.body.parentId) {
+        const user = await prisma.user.findFirst({
+          where: { id: req.user.id }
+        });
+        parentId = user.rootFolderId;
+      }
 
       // Iterate over all uploaded files and save them
       for (const file of uploadedFiles) {
@@ -26,7 +35,7 @@ module.exports.upload = [
             name: file.originalname,
             size: file.size,
             url: `/uploads/${file.filename}`,
-            userId: req.user.id, // Ensure req.user.id exists
+            folderId: parentId,
           },
         });
 
