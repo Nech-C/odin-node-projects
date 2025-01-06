@@ -53,7 +53,7 @@ module.exports.createUser = [
                 prisma.user.create({
                     data: {
                         username: req.body.username,
-                        password: req.body.password,
+                        password: hashed_password,
                     }
                 }),
                 prisma.folder.create({
@@ -95,5 +95,48 @@ module.exports.getUser = asyncHandler(async (req, res, next) => {
         res.status(200).send(user);
     } else {
         res.status(404).send('user not found!');
+    }
+});
+
+
+async function traverseFiles(folderId) {
+    const folder = await prisma.folder.findUnique({
+        where: { id: folderId },
+        include: {
+            files: true,
+            children: true,
+        }
+    });
+
+    if (!folder) {
+        return [];
+    }
+
+    let allFiles = [...folder.files];
+
+    for (let childFolder of folder.children) {
+        const childFiles = await traverseFiles(childFolder.id);
+        allFiles = allFiles.concat(childFiles);
+    }
+
+    return allFiles;
+}
+
+module.exports.getFiles = asyncHandler(async (req, res, next) => {
+    const user = await prisma.user.findUnique({
+        where: { id: req.user.id }
+    });
+
+    if (!user || !user.rootFolderId) {
+        return res.status(404).send('User or root folder not found!');
+    }
+
+    const rootFolderId = user.rootFolderId;
+
+    try {
+        const allFiles = await traverseFiles(rootFolderId);
+    } catch (error) {
+        console.error('Error fetching files', error);
+        res.status(500).send('Internal server error');
     }
 });
