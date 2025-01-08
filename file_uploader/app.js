@@ -2,7 +2,8 @@ var path = require('path');
 var createError = require('http-errors');
 
 var express = require('express');
-const session = require('express-session')
+const expressSession  = require('express-session')
+const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var passport = require('passport')
@@ -25,11 +26,21 @@ app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(
-  session({
+  expressSession({
+    cookie: {
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    },
     secret: 'whosyourdaddy',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false },
+    resave: true,
+    saveUninitialized: true,
+    store: new PrismaSessionStore(
+      new PrismaClient(),
+      {
+        checkPeriod: 2 * 60 * 1000,
+        dbRecordIdIsSessionId: true,
+        dbRecordIdFunction: undefined,
+      }
+    )
   })
 );
 
