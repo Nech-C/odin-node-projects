@@ -17,4 +17,6 @@ router.get('/logout', function(req, res, next) {
     res.redirect('/');
   });
 });
+router.get('/path', userController.readFolder);
+router.get('/path/:path', userController.readFolder);
 module.exports = router;

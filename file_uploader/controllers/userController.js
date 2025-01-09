@@ -122,21 +122,56 @@ async function traverseFiles(folderId) {
     return allFiles;
 }
 
-module.exports.getFiles = asyncHandler(async (req, res, next) => {
+module.exports.getAllFiles = asyncHandler(async (req, res, next) => {
     const user = await prisma.user.findUnique({
-        where: { id: req.user.id }
+      where: { id: req.user.id }
     });
 
     if (!user || !user.rootFolderId) {
-        return res.status(404).send('User or root folder not found!');
+      return res.status(404).send('User or root folder not found!');
     }
 
     const rootFolderId = user.rootFolderId;
 
     try {
-        const allFiles = await traverseFiles(rootFolderId);
+      const allFiles = await traverseFiles(rootFolderId);
     } catch (error) {
-        console.error('Error fetching files', error);
-        res.status(500).send('Internal server error');
+      console.error('Error fetching files', error);
+      res.status(500).send('Internal server error');
     }
+});
+
+module.exports.readFolder = asyncHandler(async (req, res, next) => {
+  const path = req.params.path || '';
+
+  const currentFolder = await prisma.folder.findUnique({
+    where: { id: req.user.rootFolderId },
+    include: {
+      children: true,
+      files: true,
+    },
+  });
+
+  const levels = path.split('/');
+  for (let level of levels) {
+    // finish this
+  }
+
+  const files = currentFolder.files;
+  const folders = currentFolder.children;
+
+  let target = {
+    files: [],
+    folders: [],
+  }
+
+  for (let file of files) {
+    target.files.push({name: file.name, size: file.size, createdAt: file.createdAt, url: file.url})
+  }
+
+  for (let folder of folders) {
+    target.folders.push([{name: folder.name, createdAt: folder.createdAt, id: folder.id}])
+  }
+
+  res.json(target);
 });
