@@ -4,32 +4,36 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
+const isAuthenticated = (req, res, next) => {
+  console.log('Session User:', req.user); // Check if req.user is populated
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).send('not authenticated!');
+};
 
 
-module.exports.upload = [
+const uploadMiddleware = [
+  isAuthenticated,
   asyncHandler(async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Authentication failed!' });
+    }
+
     try {
-      // Access the uploaded files from req.files
       if (!req.files || !req.files.file) {
         return res.status(400).json({ error: 'No files uploaded!' });
       }
 
-      const uploadedFiles = req.files.file;
-      const savedFiles = [];
-      
-      // root will be used if the parent folder is not specified
-      let parentId = req.body.parentId
-      if (!req.body.parentId) {
-        const user = await prisma.user.findFirst({
-          where: { id: req.user.id }
-        });
+      const uploadedFiles = [];
+      let parentId = req.body.parentId;
+
+      if (!parentId) {
+        const user = await prisma.user.findFirst({ where: { id: req.user.id } });
         parentId = user.rootFolderId;
       }
 
-      // Iterate over all uploaded files and save them
-      for (const file of uploadedFiles) {
-        console.debug(file);
-
+      for (const file of req.files.file) {
         const savedFile = await prisma.file.create({
           data: {
             name: file.originalname,
@@ -38,13 +42,12 @@ module.exports.upload = [
             folderId: parentId,
           },
         });
-
-        savedFiles.push(savedFile);
+        uploadedFiles.push(savedFile);
       }
 
       res.status(201).json({
         message: 'Files uploaded successfully',
-        files: savedFiles,
+        files: uploadedFiles,
       });
     } catch (error) {
       console.error(error);
@@ -52,3 +55,5 @@ module.exports.upload = [
     }
   }),
 ];
+
+module.exports.upload = uploadMiddleware;
