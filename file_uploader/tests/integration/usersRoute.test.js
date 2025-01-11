@@ -1,26 +1,28 @@
-require('dotenv').config()
-const {describe, expect, test, beforeAll, beforeEach} = require('@jest/globals')
-const { PrismaClient } = require('@prisma/client')
-const request = require('supertest')
+require('dotenv').config();
+const {describe, expect, test, beforeAll, beforeEach} = require('@jest/globals');
+const { PrismaClient } = require('@prisma/client');
+const request = require('supertest');
 
 const app = require("../../app")
 
-const RELATIONS = ['user', 'Session'] 
+const RELATIONS = ['user', 'Session', 'file', 'folder'] 
 
 let prisma;
 beforeAll(async () => {
     prisma = new PrismaClient();
     await prisma.$connect(); // Ensure the Prisma Client connects to the database
-
 });
 
 afterAll(async () => {
+    for (const relation of RELATIONS) {
+        await prisma[relation].deleteMany();
+    }
     await prisma.$disconnect(); // Disconnect the Prisma Client after tests
 });
 
 beforeEach(async () => {
     for (const relation of RELATIONS) {
-        prisma[relation].deleteMany();
+        await prisma[relation].deleteMany();
     }
 });
 
@@ -96,3 +98,4 @@ describe('Test user apis', () => {
         expect(response.text).toContain(expected_response)
     })
 });
+
