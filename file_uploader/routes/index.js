@@ -12,7 +12,7 @@ router.get('/home', function(req, res, next) {
   if (user) {
     return res.status(200).render('home', { user });
   } else {
-    res.render('login', {files: []});
+    res.render('login');
   }
 });
 

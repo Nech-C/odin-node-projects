@@ -1,24 +1,108 @@
-extends layout 
-block content 
-  - var files = files || []
-  div 
+extends layout
+
+block content
+  div
     button
-      a(href='/user/logout') logout
+      a(href='/user/logout') Logout
   h1 Hi #{user.username}!
 
-  div 
-    div
-      span your files: 
-      ul 
-        each file in files
-          li 
-            span file.name
-            button delete
-            button download
-            button select
-    div 
-      form(action='/upload' method='POST' enctype='multipart/form-data')
-        input(type='file' name='file' multiple)
-        button(type='submit') Upload file
+  div
+    nav#breadcrumbs
+      // Breadcrumbs will be dynamically populated here
+    div#content
+      ul#folders
+        // Folders will be populated here
+      ul#files
+        // Files will be populated here
 
-    
+  script.
+    function fetchFolderContent(folderId) {
+      const url = `/api/folder?folderId=${folderId}`;
+
+      // Update the URL to include the folderId as a query parameter
+      if (history.pushState) {
+        const newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?folderId=' + folderId;
+        window.history.pushState({ path: newurl }, '', newurl);
+      }
+
+      fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // currentFolderId is now managed through the URL
+          updateBreadcrumbs(data.path);
+          updateFolders(data.folders);
+          updateFiles(data.files);
+        })
+        .catch(error => {
+          console.error('There has been a problem with your fetch operation:', error);
+        });
+    }
+
+    function updateBreadcrumbs(path) {
+      const breadcrumbs = document.getElementById('breadcrumbs');
+      breadcrumbs.innerHTML = '';
+
+      path.forEach((crumb, index) => {
+        const link = document.createElement('a');
+        link.href = `?folderId=${crumb.id}`; // Set the correct query parameter for each breadcrumb
+        link.textContent = crumb.name;
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          fetchFolderContent(crumb.id);
+        });
+
+        breadcrumbs.appendChild(link);
+
+        if (index < path.length - 1) {
+          const separator = document.createElement('span');
+          separator.textContent = ' / ';
+          breadcrumbs.appendChild(separator);
+        }
+      });
+    }
+
+    function updateFolders(folders) {
+      const foldersList = document.getElementById('folders');
+      foldersList.innerHTML = '';
+
+      folders.forEach(folder => {
+        const listItem = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = `?folderId=${folder.id}`; // Set the correct query parameter for each folder link
+        link.textContent = folder.name;
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          fetchFolderContent(folder.id);
+        });
+        listItem.appendChild(link);
+        foldersList.appendChild(listItem);
+      });
+    }
+
+    function updateFiles(files) {
+      const filesList = document.getElementById('files');
+      filesList.innerHTML = '';
+
+      files.forEach(file => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${file.name} (${file.size} bytes)`;
+        filesList.appendChild(listItem);
+      });
+    }
+
+    // Get the folderId from the query parameters on page load
+    function getFolderIdFromQueryString() {
+      const queryParams = new URLSearchParams(window.location.search);
+      return queryParams.get('folderId');
+    }
+
+    // Initial fetch (load based on query parameter or root folder)
+    document.addEventListener('DOMContentLoaded', () => {
+      const initialFolderId = getFolderIdFromQueryString() || #{user.rootFolderId};
+      fetchFolderContent(parseInt(initialFolderId));
+    });

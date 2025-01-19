@@ -11,8 +11,10 @@ const { PrismaClient } = require('@prisma/client')
 
 let indexRouter = require('./routes/index');
 let usersRouter = require('./routes/users');
-let authRouter = require('./routes/auth')
-let uploadRouter = require('./routes/upload')
+let authRouter = require('./routes/auth');
+let uploadRouter = require('./routes/upload');
+let apiRouter = require('./routes/api');
+
 const localStrategy = require('./strategy')
 
 var app = express();
@@ -74,6 +76,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/', authRouter);
+app.use('/api', apiRouter);
 app.use('/user', usersRouter);
 app.use('/', uploadRouter);
 // catch 404 and forward to error handler
