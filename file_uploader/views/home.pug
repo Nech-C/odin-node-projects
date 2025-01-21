@@ -7,6 +7,8 @@ block content
   h1 Hi #{user.username}!
 
   div
+    input#fileInput(type='file', name='file')
+    button#uploadButton Upload
     nav#breadcrumbs
       // Breadcrumbs will be dynamically populated here
     div#content
@@ -14,7 +16,6 @@ block content
         // Folders will be populated here
       ul#files
         // Files will be populated here
-
   script.
     function fetchFolderContent(folderId) {
       const url = `/api/folder?folderId=${folderId}`;
@@ -105,4 +106,42 @@ block content
     document.addEventListener('DOMContentLoaded', () => {
       const initialFolderId = getFolderIdFromQueryString() || #{user.rootFolderId};
       fetchFolderContent(parseInt(initialFolderId));
+    });
+
+    const fileInput = document.getElementById('fileinput');
+    const uploadButton = document.getElementById('uploadButton');
+
+    uploadButton.addEventListener('click', () => {
+      const file = fileInput.files[0];
+      if (!file) {
+        alert('Please select a file to upload.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Get the current folder ID from the URL
+      const currentFolderId = getFolderIdFromQueryString() || #{user.rootFolderId};
+      formData.append('parentId', currentFolderId)
+
+      fetch('/upload', {
+        method: 'POST',
+        body: formData,
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('File upload failed');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('File uploaded successfully:', data);
+          // Refresh the file list after successful upload
+          fetchFolderContent(currentFolderId);
+        })
+        .catch(error => {
+          console.error('Error uploading file:', error);
+          alert('Error uploading file.');
+        });
     });
