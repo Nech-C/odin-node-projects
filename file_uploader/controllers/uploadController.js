@@ -26,7 +26,7 @@ const uploadMiddleware = [
       }
 
       const uploadedFiles = [];
-      let parentId = req.body.parentId;
+      let parentId = Number(req.body.parentId);
 
       if (!parentId) {
         const user = await prisma.user.findFirst({ where: { id: req.user.id } });
