@@ -7,7 +7,7 @@ block content
   h1 Hi #{user.username}!
 
   div
-    input#fileInput(type='file', name='file')
+    input#fileinput(type='file', name='file')
     button#uploadButton Upload
     nav#breadcrumbs
       // Breadcrumbs will be dynamically populated here
@@ -123,7 +123,7 @@ block content
 
       // Get the current folder ID from the URL
       const currentFolderId = getFolderIdFromQueryString() || #{user.rootFolderId};
-      formData.append('parentId', currentFolderId)
+      formData.append('parentId', Number(currentFolderId))
 
       fetch('/upload', {
         method: 'POST',
