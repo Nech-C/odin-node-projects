@@ -16,4 +16,6 @@ router.post('/upload', (req, res, next) => {
   next();
 }, cpUpload, uploadController.upload);
 
+router.post('/createFolder', uploadController.uploadFolder);
+
 module.exports = router;

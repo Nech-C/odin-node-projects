@@ -1,5 +1,6 @@
 const path = require('path');
 const asyncHandler = require('express-async-handler');
+const { body, validationResult } = require("express-validator");
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
@@ -56,4 +57,73 @@ const uploadMiddleware = [
   }),
 ];
 
-module.exports.upload = uploadMiddleware;
+const uploadFolder = [
+  // isAuthenticated,
+  // body("newFolderName")
+  //   .trim()
+  //   .escape()
+  //   .isAlphanumeric()
+  //   .withMessage("The username cannot have non-alphanumeric characters!")
+  //   .isLength({ min:1 })
+  //   .withMessage("The folder name must contain at least one alphanumeric character!"),
+
+  asyncHandler(async (req, res) => {
+    // const errors = validationResult(req);
+    // if (!errors.isEmpty()) {
+    //     console.log(errors.array());
+    //     return res.status(400).json({ message: "incorrect folder name format" });
+    // }
+
+
+    const parentFolderId = req.body.targetParentFolderId;
+    const newFolderName = req.body.newFolderName;
+    console.log(parentFolderId)
+    console.log(newFolderName)
+    if (parentFolderId) {
+      const parentFolder = await prisma.folder.findFirst({
+        where: {
+          id: Number(parentFolderId),
+        },
+      });
+    
+      if (!parentFolder) {
+        return res.status(400).json({ message: "Invalid parent folder ID" });
+      }
+    }
+
+    console.log(parentFolderId)
+    console.log(newFolderName)
+
+    let newFolder = null;
+    try {
+      newFolder = await prisma.folder.create({
+        data: {
+          name: newFolderName,
+          // Use connect only if parentFolderId is not null
+          parent: parentFolderId ? { connect: { id: Number(parentFolderId) } } : undefined,
+          owner: {
+            connect: { id: req.user.id },
+          },
+        },
+      });
+
+      console.log(newFolder)
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({"message": "Intenal server error"})
+    }
+    if (newFolder){
+      return res.status(201).json({"message": "Folder created successfully"})
+    }
+
+    console.error(newFolder)
+    return res.status(500).json({"message": "Intenal server error"})
+
+  }),
+
+];
+
+module.exports = {
+  upload: uploadMiddleware,
+  uploadFolder: uploadFolder,
+};

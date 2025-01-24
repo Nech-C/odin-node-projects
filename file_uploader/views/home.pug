@@ -9,6 +9,10 @@ block content
   div
     input#fileinput(type='file', name='file')
     button#uploadButton Upload
+  div 
+    input#newFolder(type='text' name='new-folder')
+    button#createFolder Create Folder
+  div
     nav#breadcrumbs
       // Breadcrumbs will be dynamically populated here
     div#content
@@ -96,6 +100,47 @@ block content
       });
     }
 
+    async function createFolder() {
+      const currentFolderId = getFolderIdFromQueryString();
+      const newFolderInput = document.getElementById("newFolder");
+      const newFolderName = newFolderInput.value; 
+
+      if (!newFolderName) {
+        alert("Please enter a folder name.");
+        return; 
+      }
+
+      const data = {
+        newFolderName: newFolderName,
+        targetParentFolderId: currentFolderId
+      };
+
+      try {
+        const response = await fetch('/createFolder', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+
+        const result = await response.json();
+        console.log(result);
+        if (result.message === "Folder created successfully") {
+          console.log('Folder created successfully:', result);
+          fetchFolderContent(currentFolderId); // Refresh the folder content
+        } else {
+          console.error('Error creating folder:', result);
+          alert('Error creating folder.');
+        }
+      } catch (error) {
+        console.error('Error creating folder:', error);
+        alert('Error creating folder.');
+      }
+    }
+
+
     // Get the folderId from the query parameters on page load
     function getFolderIdFromQueryString() {
       const queryParams = new URLSearchParams(window.location.search);
@@ -120,7 +165,7 @@ block content
 
       const formData = new FormData();
       formData.append('file', file);
-
+      
       // Get the current folder ID from the URL
       const currentFolderId = getFolderIdFromQueryString() || #{user.rootFolderId};
       formData.append('parentId', Number(currentFolderId))
@@ -144,4 +189,11 @@ block content
           console.error('Error uploading file:', error);
           alert('Error uploading file.');
         });
+    });
+
+    const createFolderButton = document.getElementById('createFolder');
+
+    createFolderButton.addEventListener('click', (event) => {
+      event.preventDefault(); // Prevent any default form submission behavior
+      createFolder();
     });
