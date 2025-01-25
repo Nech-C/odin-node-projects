@@ -6,7 +6,6 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const isAuthenticated = (req, res, next) => {
-  console.debug('Session User:', req.user); // Check if req.user is populated
   if (req.isAuthenticated()) {
     return next();
   }

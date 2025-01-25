@@ -1,5 +1,9 @@
+const fs = require('fs');
+const path = require('path');
+
 const asyncHandler = require('express-async-handler');
 const { PrismaClient } = require('@prisma/client');
+require('dotenv').config();
 
 const prisma = new PrismaClient();
 
@@ -60,4 +64,39 @@ module.exports.readFolderAjax = asyncHandler(async (req, res, next) => {
       url: file.url,
     })),
   });
+});
+
+
+module.exports.downloadFile = asyncHandler(async (req, res, next) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({'message': 'not authenticated!'});
+  }
+
+  const fileId = req.query?.fileId;
+  if (!fileId) {
+    return res.status(400).json({ message: 'no resource specified' })
+  }
+
+  const file = await prisma.file.findFirst({
+    where: {id: Number(fileId)}
+  });
+
+  if (!file) {
+    return res.status(404).json({ message: 'resource doesn\'t exist' });
+  }
+
+  const filePath = path.join(process.env.UPLOAD_PATH, file.url);
+  console.log(filePath);
+  
+  if (fs.existsSync(filePath)) {
+    res.setHeader('Content-Disposition', `attachment; filename="${file.name}"`)
+    res.sendFile(filePath, (err) => {
+      if (err) {
+        console.error('Error sending file:', err);
+        res.status(500).send('Error sending file. Please try again later');
+      }
+    })
+  } else {
+    return res.status(500).json({ message: "Internal server error! please contact site admin for help!"});
+  }
 });
