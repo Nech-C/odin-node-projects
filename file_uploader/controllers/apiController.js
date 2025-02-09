@@ -82,7 +82,7 @@ module.exports.downloadFile = asyncHandler(async (req, res, next) => {
     return res.status(401).json({ message: 'not authenticated!' });
   }
 
-  const fileId = req.query?.fileId;
+  const fileId = req.params?.fileId;
   if (!fileId) {
     return res.status(400).json({ message: 'no resource specified' });
   }

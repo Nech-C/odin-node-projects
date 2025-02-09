@@ -95,7 +95,42 @@ block content
 
       files.forEach(file => {
         const listItem = document.createElement('li');
-        listItem.textContent = `${file.name} (${file.size} bytes)`;
+
+        const text = document.createElement('span');
+        text.textContent = `${file.name} (${file.size} bytes)`
+        listItem.appendChild(text);
+
+        const download = document.createElement('a');
+        download.href = `/api/file/${file.id}`;
+        download.textContent = `download`;
+        listItem.appendChild(download);
+
+        const delete_ = document.createElement('a');
+        delete_.href = '#'; // Prevent default navigation
+        delete_.textContent = 'delete';
+        delete_.addEventListener('click', async (event) => {
+          event.preventDefault();
+
+          if (!confirm("Are you sure you want to delete this file?")) return;
+
+          try {
+            const response = await fetch(`/api/delete/file/${file.id}`, {
+              method: 'GET',
+            });
+
+            if (!response.ok) {
+              throw new Error('Failed to delete file');
+            }
+
+            const currentFolderId = getFolderIdFromQueryString() || #{user.rootFolderId};
+            fetchFolderContent(currentFolderId); // Refresh folder content after deletion
+          } catch (error) {
+            console.error('Error deleting file:', error);
+            alert('Error deleting file.');
+          }
+        });
+        listItem.appendChild(delete_);
+
         filesList.appendChild(listItem);
       });
     }
